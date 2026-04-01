@@ -3,46 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Begosi - Ankieta</title>
+    <title>Głosowanie na Grę - Społeczność</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; display: flex; flex-direction: column; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: #1e1e1e; padding: 2.5rem; border-radius: 15px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); border: 1px solid #333; }
         h2 { text-align: center; color: #4caf50; margin-bottom: 1.5rem; }
         .warning { color: #ff9800; font-size: 0.85rem; margin-bottom: 1.5rem; border: 1px dashed #ff9800; padding: 10px; border-radius: 8px; text-align: center; }
         .section { margin-bottom: 2rem; background: #252525; padding: 15px; border-radius: 8px; }
         label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; margin-top: 10px; }
         .btn-google { background: white; color: #444; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-send { background: #4caf50; color: white; font-size: 1.1rem; text-transform: uppercase; }
         .btn-send:disabled { background: #444; color: #777; cursor: not-allowed; }
+        .btn-results { background: #2196f3; color: white; display: none; }
         input[type="radio"], input[type="checkbox"] { transform: scale(1.2); margin-right: 12px; cursor: pointer; }
         #statusMsg { margin-top: 15px; text-align: center; font-weight: bold; }
-
-        /* --- ADMIN ZONE STYLES --- */
-        #adminLoginTrigger { margin-top: 40px; opacity: 0.2; transition: 0.5s; text-align: center; width: 100%; max-width: 450px; }
-        #adminLoginTrigger:hover { opacity: 1; }
-        #adminLoginTrigger input { background: #222; border: 1px solid #444; color: white; padding: 8px; border-radius: 5px; margin-bottom: 10px; width: 100%; box-sizing: border-box; }
-        #adminLoginTrigger button { background: #333; color: #888; font-size: 0.7rem; padding: 5px; }
-        
-        .admin-card { display: none; width: 100%; max-width: 700px; background: #1e1e1e; border: 2px solid #4caf50; padding: 2rem; border-radius: 15px; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; }
-        @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
-        .stat-box { background: #252525; padding: 20px; border-radius: 10px; text-align: center; border-bottom: 3px solid #4caf50; }
-        .stat-number { font-size: 2.5rem; font-weight: bold; color: #4caf50; display: block; }
-        .chart-container { background: #252525; padding: 15px; border-radius: 10px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-<div class="card" id="userCard">
-    <h2>STWÓRZMY GRĘ RAZEM!!</h2>
+<div class="card">
+    <h2>TWÓRZ GRĘ Z NAMI 🎮</h2>
     
     <div id="loginArea">
-        <div class="warning">Zaloguj się przy użycia konta google (Tylko do sprawdzenia autentyczności głosu - nie przechowuje adresów!)</div>
+        <div class="warning">Zaloguj się używając konta Google</div>
         <button id="loginBtn" class="btn-google">
             <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20" alt="G"> Zaloguj przez Google
         </button>
@@ -60,44 +47,16 @@
         </div>
 
         <div class="section">
-            <label>2. Platforma docelowa:</label>
-            <input type="checkbox" name="platform" value="Android" id="p1"> <label for="p1" style="display:inline;">Android</label><br><br>
-            <input type="checkbox" name="platform" value="Windows" id="p2"> <label for="p2" style="display:inline;">Windows / Linux</label>
+            <label>Na jaką platformę chcesz abym opublikował grę?</label>
+            <input type="checkbox" name="platform" value="Android" id="p1"> <label for="p1" style="display:inline;">Android (Google Play)</label><br><br>
+            <input type="checkbox" name="platform" value="Windows" id="p2"> <label for="p2" style="display:inline;">Windows / Linux (Steam)</label>
         </div>
 
         <button id="submitBtn" class="btn-send" disabled>WYŚLIJ GŁOS!</button>
     </div>
+    
     <div id="statusMsg"></div>
-</div>
-
-<div id="adminLoginTrigger">
-    <input type="password" id="adminPass" placeholder="Admin Passkey">
-    <button onclick="checkAdmin()">OTWÓRZ PANEL STATYSTYK</button>
-</div>
-
-<div class="admin-card" id="adminZone">
-    <h2>PANEL ADMINISTRATORA 📊</h2>
-    <div class="stats-grid">
-        <div class="stat-box">
-            <span>Suma wszystkich głosów</span>
-            <span class="stat-number" id="totalVotes">0</span>
-        </div>
-        <div class="stat-box">
-            <span>Ostatnia aktywność</span>
-            <span id="lastVoteTime" style="color: #888;">Brak danych</span>
-        </div>
-    </div>
-
-    <div class="stats-grid">
-        <div class="chart-container">
-            <canvas id="dimChart"></canvas>
-        </div>
-        <div class="chart-container">
-            <canvas id="platChart"></canvas>
-        </div>
-    </div>
-
-    <button onclick="location.reload()" style="margin-top: 30px; background: #333;">POWRÓT DO GŁOSOWANIA</button>
+    <button id="showResultsBtn" class="btn-results" onclick="showLiveResults()">SPRAWDŹ AKTUALNE WYNIKI</button>
 </div>
 
 <script>
@@ -119,22 +78,17 @@
 
     const loginBtn = document.getElementById('loginBtn');
     const submitBtn = document.getElementById('submitBtn');
-    const userInfo = document.getElementById('userInfo');
-    const userName = document.getElementById('userName');
-    const loginArea = document.getElementById('loginArea');
+    const showResultsBtn = document.getElementById('showResultsBtn');
     const statusMsg = document.getElementById('statusMsg');
     const voteForm = document.getElementById('voteForm');
 
-    let currentUser = null;
-    const PASSKEY = "Begosi2026";
-
-    // Sprawdzanie czy użytkownik już głosował
     function checkIfVoted(uid) {
         database.ref('votes/' + uid).once('value', (snapshot) => {
             if (snapshot.exists() || localStorage.getItem('voted_' + uid)) {
                 statusMsg.innerText = "Już oddałeś swój głos! Dzięki!";
                 statusMsg.style.color = "#ff9800";
                 voteForm.style.display = "none";
+                showResultsBtn.style.display = "block";
             } else {
                 submitBtn.disabled = false;
             }
@@ -143,112 +97,40 @@
 
     loginBtn.addEventListener('click', () => {
         auth.signInWithPopup(provider).then((result) => {
-            currentUser = result.user;
-            userName.innerText = currentUser.displayName;
-            userInfo.style.display = "block";
-            loginArea.style.display = "none";
-            checkIfVoted(currentUser.uid);
-        }).catch((error) => {
-            statusMsg.innerText = "Błąd logowania!";
-            statusMsg.style.color = "red";
+            document.getElementById('userName').innerText = result.user.displayName;
+            document.getElementById('userInfo').style.display = "block";
+            document.getElementById('loginArea').style.display = "none";
+            checkIfVoted(result.user.uid);
         });
     });
 
     submitBtn.addEventListener('click', () => {
         const dim = document.querySelector('input[name="dimension"]:checked');
         const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
-
-        if (!dim || platforms.length === 0) {
-            alert("Uzupełnij wszystkie pola!");
-            return;
-        }
+        if (!dim || platforms.length === 0) return alert("Uzupełnij wszystko!");
 
         submitBtn.disabled = true;
-        submitBtn.innerText = "WYSYŁANIE...";
-
-        database.ref('votes/' + currentUser.uid).set({
-            name: currentUser.displayName,
+        database.ref('votes/' + auth.currentUser.uid).set({
+            name: auth.currentUser.displayName,
             dimension: dim.value,
             platforms: platforms,
             timestamp: Date.now()
         }).then(() => {
-            localStorage.setItem('voted_' + currentUser.uid, 'true');
-            statusMsg.innerText = "Głos wysłany!";
-            statusMsg.style.color = "#4caf50";
-            voteForm.style.display = "none";
-        }).catch((error) => {
-            statusMsg.innerText = "Błąd zapisu!";
-            statusMsg.style.color = "red";
-            submitBtn.disabled = false;
+            localStorage.setItem('voted_' + auth.currentUser.uid, 'true');
+            location.reload();
         });
     });
 
-    // --- LOGIKA PANELU ADMINA ---
-    function checkAdmin() {
-        const input = document.getElementById('adminPass').value;
-        if (input === PASSKEY) {
-            document.getElementById('userCard').style.display = 'none';
-            document.getElementById('adminLoginTrigger').style.display = 'none';
-            document.getElementById('adminZone').style.display = 'block';
-            loadAdminData();
-        } else {
-            alert("Nieprawidłowe hasło!");
-        }
-    }
-
-    function loadAdminData() {
-        database.ref('votes').once('value', (snapshot) => {
-            const data = snapshot.val();
-            if (!data) return;
-
-            const votesArray = Object.values(data);
-            document.getElementById('totalVotes').innerText = votesArray.length;
-
-            let count2D = 0;
-            let count3D = 0;
-            let countAndroid = 0;
-            let countWindows = 0;
-
-            votesArray.forEach(vote => {
-                if (vote.dimension === "2D") count2D++; else count3D++;
-                if (vote.platforms.includes("Android")) countAndroid++;
-                if (vote.platforms.includes("Windows")) countWindows++;
+    function showLiveResults() {
+        database.ref('votes').once('value', (snap) => {
+            const data = snap.val();
+            let d2 = 0, d3 = 0, and = 0, win = 0;
+            Object.values(data).forEach(v => {
+                if(v.dimension === "2D") d2++; else d3++;
+                if(v.platforms.includes("Android")) and++;
+                if(v.platforms.includes("Windows")) win++;
             });
-
-            // Ostatni głos czas
-            const timestamps = votesArray.map(v => v.timestamp);
-            const lastTime = new Date(Math.max(...timestamps)).toLocaleString();
-            document.getElementById('lastVoteTime').innerText = lastTime;
-
-            // Wykres 2D vs 3D
-            new Chart(document.getElementById('dimChart'), {
-                type: 'pie',
-                data: {
-                    labels: ['2D', '3D'],
-                    datasets: [{
-                        data: [count2D, count3D],
-                        backgroundColor: ['#4caf50', '#2196f3']
-                    }]
-                },
-                options: { plugins: { title: { display: true, text: 'Wymiary', color: 'white' } } }
-            });
-
-            // Wykres Platformy
-            new Chart(document.getElementById('platChart'), {
-                type: 'bar',
-                data: {
-                    labels: ['Android', 'Windows'],
-                    datasets: [{
-                        label: 'Głosy',
-                        data: [countAndroid, countWindows],
-                        backgroundColor: '#ff9800'
-                    }]
-                },
-                options: { 
-                    scales: { y: { beginAtZero: true, ticks: { color: 'white' } }, x: { ticks: { color: 'white' } } },
-                    plugins: { legend: { display: false }, title: { display: true, text: 'Platformy', color: 'white' } }
-                }
-            });
+            alert(`AKTUALNE WYNIKI:\n\n2D: ${d2} | 3D: ${d3}\nAndroid: ${and} | Windows: ${win}`);
         });
     }
 </script>
