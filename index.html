@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Głosowanie na Grę - Społeczność</title>
+    <title>Begosi - Ankieta</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
@@ -19,7 +19,7 @@
         .btn-send { background: #4caf50; color: white; font-size: 1.1rem; text-transform: uppercase; }
         .btn-send:disabled { background: #444; color: #777; cursor: not-allowed; }
         .btn-results { background: #2196f3; color: white; display: none; }
-        input[type="radio"], input[type="checkbox"] { transform: scale(1.2); margin-right: 12px; cursor: pointer; }
+        input[type="radio"] { transform: scale(1.2); margin-right: 12px; cursor: pointer; }
         #statusMsg { margin-top: 15px; text-align: center; font-weight: bold; }
     </style>
 </head>
@@ -36,10 +36,10 @@
     </div>
 
     <div id="userInfo" style="display:none; text-align: center; margin-bottom: 1.5rem;">
-        <span style="color: #4caf50;">✅ Zalogowano jako: </span><br><b id="userName"></b>
+        <span style="color: #4caf50;">Zalogowano jako: </span><br><b id="userName"></b>
     </div>
 
-    <div id="voteForm">
+    <div id="voteForm" style="display:none;">
         <div class="section">
             <label>1. Czy chcesz aby gra była 2D czy 3D?</label>
             <input type="radio" name="dimension" value="2D" id="d2"> <label for="d2" style="display:inline;">2D</label><br><br>
@@ -48,8 +48,8 @@
 
         <div class="section">
             <label>Na jaką platformę chcesz abym opublikował grę?</label>
-            <input type="checkbox" name="platform" value="Android" id="p1"> <label for="p1" style="display:inline;">Android (Google Play)</label><br><br>
-            <input type="checkbox" name="platform" value="Windows" id="p2"> <label for="p2" style="display:inline;">Windows / Linux (Steam)</label>
+            <input type="radio" name="platform" value="Android" id="p1"> <label for="p1" style="display:inline;">Android (Google Play)</label><br><br>
+            <input type="radio" name="platform" value="Windows" id="p2"> <label for="p2" style="display:inline;">Windows / Linux (Steam)</label>
         </div>
 
         <button id="submitBtn" class="btn-send" disabled>WYŚLIJ GŁOS!</button>
@@ -81,42 +81,60 @@
     const showResultsBtn = document.getElementById('showResultsBtn');
     const statusMsg = document.getElementById('statusMsg');
     const voteForm = document.getElementById('voteForm');
+    const loginArea = document.getElementById('loginArea');
+    const userInfo = document.getElementById('userInfo');
+    const userName = document.getElementById('userName');
 
     function checkIfVoted(uid) {
         database.ref('votes/' + uid).once('value', (snapshot) => {
-            if (snapshot.exists() || localStorage.getItem('voted_' + uid)) {
+            if (snapshot.exists()) {
                 statusMsg.innerText = "Już oddałeś swój głos! Dzięki!";
                 statusMsg.style.color = "#ff9800";
                 voteForm.style.display = "none";
                 showResultsBtn.style.display = "block";
             } else {
+                statusMsg.innerText = "";
+                voteForm.style.display = "block";
                 submitBtn.disabled = false;
+                showResultsBtn.style.display = "none";
             }
         });
     }
 
+    auth.onAuthStateChanged((user) => {
+        if (user) {
+            userName.innerText = user.displayName;
+            userInfo.style.display = "block";
+            loginArea.style.display = "none";
+            checkIfVoted(user.uid);
+        } else {
+            loginArea.style.display = "block";
+            userInfo.style.display = "none";
+            voteForm.style.display = "none";
+            showResultsBtn.style.display = "none";
+            statusMsg.innerText = "";
+        }
+    });
+
     loginBtn.addEventListener('click', () => {
-        auth.signInWithPopup(provider).then((result) => {
-            document.getElementById('userName').innerText = result.user.displayName;
-            document.getElementById('userInfo').style.display = "block";
-            document.getElementById('loginArea').style.display = "none";
-            checkIfVoted(result.user.uid);
+        auth.signInWithPopup(provider).catch((error) => {
+            console.error(error);
         });
     });
 
     submitBtn.addEventListener('click', () => {
         const dim = document.querySelector('input[name="dimension"]:checked');
-        const platforms = Array.from(document.querySelectorAll('input[name="platform"]:checked')).map(cb => cb.value);
-        if (!dim || platforms.length === 0) return alert("Uzupełnij wszystko!");
+        const plat = document.querySelector('input[name="platform"]:checked');
+        
+        if (!dim || !plat) return alert("Uzupełnij oba pytania!");
 
         submitBtn.disabled = true;
         database.ref('votes/' + auth.currentUser.uid).set({
             name: auth.currentUser.displayName,
             dimension: dim.value,
-            platforms: platforms,
+            platforms: [plat.value],
             timestamp: Date.now()
         }).then(() => {
-            localStorage.setItem('voted_' + auth.currentUser.uid, 'true');
             location.reload();
         });
     });
@@ -125,11 +143,13 @@
         database.ref('votes').once('value', (snap) => {
             const data = snap.val();
             let d2 = 0, d3 = 0, and = 0, win = 0;
-            Object.values(data).forEach(v => {
-                if(v.dimension === "2D") d2++; else d3++;
-                if(v.platforms.includes("Android")) and++;
-                if(v.platforms.includes("Windows")) win++;
-            });
+            if (data) {
+                Object.values(data).forEach(v => {
+                    if(v.dimension === "2D") d2++; else d3++;
+                    if(v.platforms.includes("Android")) and++;
+                    if(v.platforms.includes("Windows")) win++;
+                });
+            }
             alert(`AKTUALNE WYNIKI:\n\n2D: ${d2} | 3D: ${d3}\nAndroid: ${and} | Windows: ${win}`);
         });
     }
