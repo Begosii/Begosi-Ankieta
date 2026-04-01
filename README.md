@@ -1,1 +1,0 @@
-# Begosi-Ankieta
