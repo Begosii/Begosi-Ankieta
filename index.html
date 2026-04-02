@@ -3,60 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Begosi - Ankieta</title>
+    <title>ANKIETA ZAKOŃCZONA!</title>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .main { background: #1e1e1e; padding: 2.5rem; border-radius: 15px; width: 100%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.7); border: 1px solid #333; }
-        h2 { text-align: center; color: #4caf50; margin-bottom: 1.5rem; }
-        .warning { color: #ff9800; font-size: 0.85rem; margin-bottom: 1.5rem; border: 1px dashed #ff9800; padding: 10px; border-radius: 8px; text-align: center; }
-        .section { margin-bottom: 2rem; background: #252525; padding: 15px; border-radius: 8px; }
-        label { display: block; margin-bottom: 10px; font-weight: bold; font-size: 0.95rem; }
-        button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; margin-top: 10px; }
-        .btn-google { background: white; color: #444; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn-send { background: #4caf50; color: white; font-size: 1.1rem; text-transform: uppercase; }
-        .btn-send:disabled { background: #444; color: #777; cursor: not-allowed; }
-        .btn-results { background: #2196f3; color: white; display: none; }
-        input[type="radio"] { transform: scale(1.2); margin-right: 12px; cursor: pointer; }
-        #statusMsg { margin-top: 15px; text-align: center; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; background: #121212; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: #1e1e1e; padding: 2.5rem; border-radius: 15px; width: 100%; max-width: 500px; text-align: center; border: 1px solid #333; }
+        h1 { color: #ff4444; margin-bottom: 0.5rem; }
+        h2 { color: #4caf50; margin-bottom: 2rem; font-size: 1rem; }
+        .result-row { margin-bottom: 2rem; background: #252525; padding: 20px; border-radius: 10px; text-align: left; }
+        .bar-bg { background: #444; height: 12px; border-radius: 10px; margin-top: 10px; overflow: hidden; }
+        .bar-fill { background: #4caf50; height: 100%; width: 0%; transition: width 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
+        .reveal-btn { background: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .hidden-res { display: none; margin-top: 10px; font-weight: bold; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-<div class="main">
-    <h2>STWÓRZ ZE MNĄ GRĘ!</h2>
-    
-    <div id="loginArea">
-        <div class="warning">Zaloguj się używając konta Google (Nie przechowujemy zadnych danych - Musisz to zrobić aby potwierdzić autentyczność głosu)</div>
-        <button id="loginBtn" class="btn-google">
-            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20" alt="G"> Zaloguj przez Google
-        </button>
-    </div>
+<div class="card">
+    <h1>ANKIETA ZAKOŃCZONA!</h1>
+    <h2>Dzięki za wszystkie głosy! Oto wyniki:</h2>
 
-    <div id="userInfo" style="display:none; text-align: center; margin-bottom: 1.5rem;">
-        <span style="color: #4caf50;">Zalogowano jako: </span><br><b id="userName"></b>
-    </div>
-
-    <div id="voteForm" style="display:none;">
-        <div class="section">
-            <label>1. Czy chcesz aby gra była 2D czy 3D?</label>
-            <input type="radio" name="dimension" value="2D" id="d2"> <label for="d2" style="display:inline;">2D</label><br><br>
-            <input type="radio" name="dimension" value="3D" id="d3"> <label for="d3" style="display:inline;">3D</label>
+    <div class="result-row">
+        <label>1. Czy chcesz aby gra była 2D czy 3D?</label>
+        <button class="reveal-btn" onclick="reveal('dim')">WYŚWIETL WYNIKI</button>
+        <div id="dimRes" class="hidden-res">
+            <div id="dimText">...</div>
+            <div class="bar-bg"><div id="dimBar" class="bar-fill"></div></div>
         </div>
-
-        <div class="section">
-            <label>Na jaką platformę chcesz abym opublikował grę?</label>
-            <input type="radio" name="platform" value="Android" id="p1"> <label for="p1" style="display:inline;">Android (Google Play)</label><br><br>
-            <input type="radio" name="platform" value="Windows" id="p2"> <label for="p2" style="display:inline;">Windows / Linux (Steam)</label>
-        </div>
-
-        <button id="submitBtn" class="btn-send" disabled>WYŚLIJ GŁOS!</button>
     </div>
-    
-    <div id="statusMsg"></div>
-    <button id="showResultsBtn" class="btn-results" onclick="showLiveResults()">SPRAWDŹ AKTUALNE WYNIKI</button>
+
+    <div class="result-row">
+        <label>2. Na jaką platforme chcesz abym opublikował grę?</label>
+        <button class="reveal-btn" onclick="reveal('plat')">WYŚWIETL WYNIKI</button>
+        <div id="platRes" class="hidden-res">
+            <div id="platText">...</div>
+            <div class="bar-bg"><div id="platBar" class="bar-fill"></div></div>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -64,94 +48,39 @@
       apiKey: "AIzaSyCLZUoLnZPpNsDOehshUJxTRQbCdpt8MwQ",
       authDomain: "begosi-auth.firebaseapp.com",
       databaseURL: "https://begosi-auth-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "begosi-auth",
-      storageBucket: "begosi-auth.firebasestorage.app",
-      messagingSenderId: "962646000272",
-      appId: "1:962646000272:web:9eb0950fc8ced3687a4e15",
-      measurementId: "G-D78Y7LZ7QP"
+      projectId: "begosi-auth"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
     const database = firebase.database();
-    const provider = new firebase.auth.GoogleAuthProvider();
 
-    const loginBtn = document.getElementById('loginBtn');
-    const submitBtn = document.getElementById('submitBtn');
-    const showResultsBtn = document.getElementById('showResultsBtn');
-    const statusMsg = document.getElementById('statusMsg');
-    const voteForm = document.getElementById('voteForm');
-    const loginArea = document.getElementById('loginArea');
-    const userInfo = document.getElementById('userInfo');
-    const userName = document.getElementById('userName');
+    let stats = { d2: 0, d3: 0, and: 0, win: 0, total: 0 };
 
-    function checkIfVoted(uid) {
-        database.ref('votes/' + uid).once('value', (snapshot) => {
-            if (snapshot.exists()) {
-                statusMsg.innerText = "Już oddałeś swój głos! Dzięki!";
-                statusMsg.style.color = "#ff9800";
-                voteForm.style.display = "none";
-                showResultsBtn.style.display = "block";
-            } else {
-                statusMsg.innerText = "";
-                voteForm.style.display = "block";
-                submitBtn.disabled = false;
-                showResultsBtn.style.display = "none";
-            }
+    database.ref('votes').once('value', (snap) => {
+        const data = snap.val();
+        stats.total = Object.keys(data).length;
+        Object.values(data).forEach(v => {
+            if(v.dimension === "2D") stats.d2++; else stats.d3++;
+            if(v.platforms.includes("Android")) stats.and++;
+            if(v.platforms.includes("Windows")) stats.win++;
         });
-    }
+    });
 
-    auth.onAuthStateChanged((user) => {
-        if (user) {
-            userName.innerText = user.displayName;
-            userInfo.style.display = "block";
-            loginArea.style.display = "none";
-            checkIfVoted(user.uid);
+    function reveal(type) {
+        event.target.style.display = 'none';
+        if(type === 'dim') {
+            document.getElementById('dimRes').style.display = 'block';
+            const winner = stats.d2 > stats.d3 ? "2D" : "3D";
+            const percent = Math.round((stats[winner.toLowerCase()] / stats.total) * 100);
+            document.getElementById('dimText').innerText = `WYGRAŁO: ${winner} (${percent}%)`;
+            setTimeout(() => { document.getElementById('dimBar').style.width = percent + '%'; }, 100);
         } else {
-            loginArea.style.display = "block";
-            userInfo.style.display = "none";
-            voteForm.style.display = "none";
-            showResultsBtn.style.display = "none";
-            statusMsg.innerText = "";
+            document.getElementById('platRes').style.display = 'block';
+            const winner = stats.and > stats.win ? "Android" : "Windows";
+            const key = winner === "Android" ? "and" : "win";
+            const percent = Math.round((stats[key] / stats.total) * 100);
+            document.getElementById('platText').innerText = `WYGRAŁO: ${winner} (${percent}%)`;
+            setTimeout(() => { document.getElementById('platBar').style.width = percent + '%'; }, 100);
         }
-    });
-
-    loginBtn.addEventListener('click', () => {
-        auth.signInWithPopup(provider).catch((error) => {
-            console.error(error);
-        });
-    });
-
-    submitBtn.addEventListener('click', () => {
-        const dim = document.querySelector('input[name="dimension"]:checked');
-        const plat = document.querySelector('input[name="platform"]:checked');
-        
-        if (!dim || !plat) return alert("Uzupełnij oba pytania!");
-
-        submitBtn.disabled = true;
-        database.ref('votes/' + auth.currentUser.uid).set({
-            name: auth.currentUser.displayName,
-            dimension: dim.value,
-            platforms: [plat.value],
-            timestamp: Date.now()
-        }).then(() => {
-            location.reload();
-        });
-    });
-
-    function showLiveResults() {
-        database.ref('votes').once('value', (snap) => {
-            const data = snap.val();
-            let d2 = 0, d3 = 0, and = 0, win = 0;
-            if (data) {
-                Object.values(data).forEach(v => {
-                    if(v.dimension === "2D") d2++; else d3++;
-                    if(v.platforms.includes("Android")) and++;
-                    if(v.platforms.includes("Windows")) win++;
-                });
-            }
-            alert(`AKTUALNE WYNIKI:\n\n2D: ${d2} | 3D: ${d3}\nAndroid: ${and} | Windows: ${win}`);
-        });
     }
 </script>
 </body>
