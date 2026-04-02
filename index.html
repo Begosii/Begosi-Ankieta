@@ -21,7 +21,7 @@
 <body>
 
 <div class="card">
-    <h1>ANKIETA ZAKOŃCZONA! 🔒</h1>
+    <h1>ANKIETA ZAKOŃCZONA! :D</h1>
     <h2>Dzięki za wszystkie głosy! Oto wyniki:</h2>
 
     <div class="result-row">
@@ -82,11 +82,11 @@
             setTimeout(() => { document.getElementById('dimBar').style.width = percent + '%'; }, 100);
         } else {
             document.getElementById('platRes').style.display = 'block';
-            const winner = stats.and >= stats.win ? "Android" : "Windows";
+            const winnerName = stats.and >= stats.win ? "Android (Google Play)" : "Windows / Linux (Steam)";
             const winnerCount = stats.and >= stats.win ? stats.and : stats.win;
             const percent = Math.round((winnerCount / stats.total) * 100);
             
-            document.getElementById('platText').innerText = `WYGRAŁO: ${winner} (${percent}%)`;
+            document.getElementById('platText').innerText = `WYGRAŁO: ${winnerName} (${percent}%)`;
             setTimeout(() => { document.getElementById('platBar').style.width = percent + '%'; }, 100);
         }
     }
