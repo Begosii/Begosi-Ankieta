@@ -138,21 +138,6 @@
             location.reload();
         });
     });
-
-    function showLiveResults() {
-        database.ref('votes').once('value', (snap) => {
-            const data = snap.val();
-            let d2 = 0, d3 = 0, and = 0, win = 0;
-            if (data) {
-                Object.values(data).forEach(v => {
-                    if(v.dimension === "2D") d2++; else d3++;
-                    if(v.platforms.includes("Android")) and++;
-                    if(v.platforms.includes("Windows")) win++;
-                });
-            }
-            alert(`AKTUALNE WYNIKI:\n\n2D: ${d2} | 3D: ${d3}\nAndroid: ${and} | Windows: ${win}`);
-        });
-    }
 </script>
 </body>
 </html>
