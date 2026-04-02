@@ -14,14 +14,14 @@
         .result-row { margin-bottom: 2rem; background: #252525; padding: 20px; border-radius: 10px; text-align: left; }
         .bar-bg { background: #444; height: 12px; border-radius: 10px; margin-top: 10px; overflow: hidden; }
         .bar-fill { background: #4caf50; height: 100%; width: 0%; transition: width 1.5s cubic-bezier(0.17, 0.67, 0.83, 0.67); }
-        .reveal-btn { background: #4caf50; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .reveal-btn { background: #4caf50; color: white; border: none; padding: 12px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; width: 100%; }
         .hidden-res { display: none; margin-top: 10px; font-weight: bold; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h1>ANKIETA ZAKOŃCZONA!</h1>
+    <h1>ANKIETA ZAKOŃCZONA! 🔒</h1>
     <h2>Dzięki za wszystkie głosy! Oto wyniki:</h2>
 
     <div class="result-row">
@@ -34,7 +34,7 @@
     </div>
 
     <div class="result-row">
-        <label>2. Na jaką platforme chcesz abym opublikował grę?</label>
+        <label>2. Na jaką platformę chcesz abym opublikował grę?</label>
         <button class="reveal-btn" onclick="reveal('plat')">WYŚWIETL WYNIKI</button>
         <div id="platRes" class="hidden-res">
             <div id="platText">...</div>
@@ -57,27 +57,35 @@
 
     database.ref('votes').once('value', (snap) => {
         const data = snap.val();
-        stats.total = Object.keys(data).length;
-        Object.values(data).forEach(v => {
-            if(v.dimension === "2D") stats.d2++; else stats.d3++;
-            if(v.platforms.includes("Android")) stats.and++;
-            if(v.platforms.includes("Windows")) stats.win++;
-        });
+        if (data) {
+            stats.total = Object.keys(data).length;
+            Object.values(data).forEach(v => {
+                if(v.dimension === "2D") stats.d2++; else stats.d3++;
+                if(v.platforms && v.platforms.includes("Android")) stats.and++;
+                if(v.platforms && v.platforms.includes("Windows")) stats.win++;
+            });
+        }
     });
 
     function reveal(type) {
+        if (stats.total === 0) return alert("Brak głosów w bazie!");
+        
         event.target.style.display = 'none';
+        
         if(type === 'dim') {
             document.getElementById('dimRes').style.display = 'block';
-            const winner = stats.d2 > stats.d3 ? "2D" : "3D";
-            const percent = Math.round((stats[winner.toLowerCase()] / stats.total) * 100);
+            const winner = stats.d2 >= stats.d3 ? "2D" : "3D";
+            const winnerCount = stats.d2 >= stats.d3 ? stats.d2 : stats.d3;
+            const percent = Math.round((winnerCount / stats.total) * 100);
+            
             document.getElementById('dimText').innerText = `WYGRAŁO: ${winner} (${percent}%)`;
             setTimeout(() => { document.getElementById('dimBar').style.width = percent + '%'; }, 100);
         } else {
             document.getElementById('platRes').style.display = 'block';
-            const winner = stats.and > stats.win ? "Android" : "Windows";
-            const key = winner === "Android" ? "and" : "win";
-            const percent = Math.round((stats[key] / stats.total) * 100);
+            const winner = stats.and >= stats.win ? "Android" : "Windows";
+            const winnerCount = stats.and >= stats.win ? stats.and : stats.win;
+            const percent = Math.round((winnerCount / stats.total) * 100);
+            
             document.getElementById('platText').innerText = `WYGRAŁO: ${winner} (${percent}%)`;
             setTimeout(() => { document.getElementById('platBar').style.width = percent + '%'; }, 100);
         }
