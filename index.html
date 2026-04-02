@@ -20,41 +20,48 @@
         .btn-send:disabled { background: #444; color: #777; cursor: not-allowed; }
         input[type="radio"] { transform: scale(1.2); margin-right: 12px; cursor: pointer; }
         #statusMsg { margin-top: 15px; text-align: center; font-weight: bold; }
+        
+        #appContent { display: none; }
+        #loader { text-align: center; color: #4caf50; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div class="main">
-    <h2>STWÓRZ ZE MNĄ GRĘ!</h2>
-    
-    <div id="loginArea">
-        <div class="warning">Zaloguj się używając konta Google (Nie przechowujemy zadnych danych - Musisz to zrobić aby potwierdzić autentyczność głosu)</div>
-        <button id="loginBtn" class="btn-google">
-            <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20" alt="G"> Zaloguj przez Google
-        </button>
-    </div>
+    <div id="loader">Ładowanie...</div>
 
-    <div id="userInfo" style="display:none; text-align: center; margin-bottom: 1.5rem;">
-        <span style="color: #4caf50;">Zalogowano jako: </span><br><b id="userName"></b>
-    </div>
-
-    <div id="voteForm" style="display:none;">
-        <div class="section">
-            <label>1. Czy chcesz aby gra była 2D czy 3D?</label>
-            <input type="radio" name="dimension" value="2D" id="d2"> <label for="d2" style="display:inline;">2D</label><br><br>
-            <input type="radio" name="dimension" value="3D" id="d3"> <label for="d3" style="display:inline;">3D</label>
+    <div id="appContent">
+        <h2>STWÓRZ ZE MNĄ GRĘ!</h2>
+        
+        <div id="loginArea" style="display:none;">
+            <div class="warning">Zaloguj się używając konta Google (Nie przechowujemy zadnych danych - Musisz to zrobić aby potwierdzić autentyczność głosu)</div>
+            <button id="loginBtn" class="btn-google">
+                <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20" alt="G"> Zaloguj przez Google
+            </button>
         </div>
 
-        <div class="section">
-            <label>Na jaką platformę chcesz abym opublikował grę?</label>
-            <input type="radio" name="platform" value="Android" id="p1"> <label for="p1" style="display:inline;">Android (Google Play)</label><br><br>
-            <input type="radio" name="platform" value="Windows" id="p2"> <label for="p2" style="display:inline;">Windows / Linux (Steam)</label>
+        <div id="userInfo" style="display:none; text-align: center; margin-bottom: 1.5rem;">
+            <span style="color: #4caf50;">Zalogowano jako: </span><br><b id="userName"></b>
         </div>
 
-        <button id="submitBtn" class="btn-send" disabled>WYŚLIJ GŁOS!</button>
+        <div id="voteForm" style="display:none;">
+            <div class="section">
+                <label>1. Czy chcesz aby gra była 2D czy 3D?</label>
+                <input type="radio" name="dimension" value="2D" id="d2"> <label for="d2" style="display:inline;">2D</label><br><br>
+                <input type="radio" name="dimension" value="3D" id="d3"> <label for="d3" style="display:inline;">3D</label>
+            </div>
+
+            <div class="section">
+                <label>Na jaką platformę chcesz abym opublikował grę?</label>
+                <input type="radio" name="platform" value="Android" id="p1"> <label for="p1" style="display:inline;">Android (Google Play)</label><br><br>
+                <input type="radio" name="platform" value="Windows" id="p2"> <label for="p2" style="display:inline;">Windows / Linux (Steam)</label>
+            </div>
+
+            <button id="submitBtn" class="btn-send" disabled>WYŚLIJ GŁOS!</button>
+        </div>
+        
+        <div id="statusMsg"></div>
     </div>
-    
-    <div id="statusMsg"></div>
 </div>
 
 <script>
@@ -81,9 +88,13 @@
     const loginArea = document.getElementById('loginArea');
     const userInfo = document.getElementById('userInfo');
     const userName = document.getElementById('userName');
+    const appContent = document.getElementById('appContent');
+    const loader = document.getElementById('loader');
 
     function checkIfVoted(uid) {
         database.ref('votes/' + uid).once('value', (snapshot) => {
+            loader.style.display = "none";
+            appContent.style.display = "block";
             if (snapshot.exists()) {
                 statusMsg.innerText = "Już oddałeś swój głos! Dzięki!";
                 statusMsg.style.color = "#ff9800";
@@ -103,6 +114,8 @@
             loginArea.style.display = "none";
             checkIfVoted(user.uid);
         } else {
+            loader.style.display = "none";
+            appContent.style.display = "block";
             loginArea.style.display = "block";
             userInfo.style.display = "none";
             voteForm.style.display = "none";
