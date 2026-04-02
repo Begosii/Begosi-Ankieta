@@ -18,7 +18,6 @@
         .btn-google { background: white; color: #444; margin-bottom: 1rem; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .btn-send { background: #4caf50; color: white; font-size: 1.1rem; text-transform: uppercase; }
         .btn-send:disabled { background: #444; color: #777; cursor: not-allowed; }
-        .btn-results { background: #2196f3; color: white; display: none; }
         input[type="radio"] { transform: scale(1.2); margin-right: 12px; cursor: pointer; }
         #statusMsg { margin-top: 15px; text-align: center; font-weight: bold; }
     </style>
@@ -56,7 +55,6 @@
     </div>
     
     <div id="statusMsg"></div>
-    <button id="showResultsBtn" class="btn-results" onclick="showLiveResults()">SPRAWDŹ AKTUALNE WYNIKI</button>
 </div>
 
 <script>
@@ -78,7 +76,6 @@
 
     const loginBtn = document.getElementById('loginBtn');
     const submitBtn = document.getElementById('submitBtn');
-    const showResultsBtn = document.getElementById('showResultsBtn');
     const statusMsg = document.getElementById('statusMsg');
     const voteForm = document.getElementById('voteForm');
     const loginArea = document.getElementById('loginArea');
@@ -91,12 +88,10 @@
                 statusMsg.innerText = "Już oddałeś swój głos! Dzięki!";
                 statusMsg.style.color = "#ff9800";
                 voteForm.style.display = "none";
-                showResultsBtn.style.display = "block";
             } else {
                 statusMsg.innerText = "";
                 voteForm.style.display = "block";
                 submitBtn.disabled = false;
-                showResultsBtn.style.display = "none";
             }
         });
     }
@@ -111,7 +106,6 @@
             loginArea.style.display = "block";
             userInfo.style.display = "none";
             voteForm.style.display = "none";
-            showResultsBtn.style.display = "none";
             statusMsg.innerText = "";
         }
     });
